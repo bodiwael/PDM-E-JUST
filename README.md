@@ -1,4 +1,3 @@
-```markdown
 # 🎥 Video-Based Vibration Analysis & Signal Extraction Pipeline
 
 This repository implements a **video-based vibration analysis system** using computer vision techniques like **Eulerian Magnification** and **Dense Optical Flow**. The system extracts subtle periodic vibrations from video, processes them into time series, and performs full **signal processing & frequency domain analysis**, including:
@@ -207,23 +206,3 @@ Combines all steps in order, and allows toggling between **vertical motion track
 - ✅ Optical flow vector visualization video
 - ✅ Vibration signal CSV file
 - ✅ Plot with frequency and spectrogram insights
-
----
-
-## ✍️ Author
-
-**Abdelrahman Wael**  
-Technical Project Manager, IEEE E-Just SB  
-Passionate about AI, Computer Vision & Biomedical Applications.
-
----
-
-## 📃 License
-
-MIT License - free for personal and commercial use with attribution.
-
-```
-
----
-
-Would you like me to generate the `.md` file and send it as a downloadable?
