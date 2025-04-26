@@ -38,9 +38,10 @@ pip install opencv-python numpy matplotlib pandas scipy scikit-learn
 
 ```
 .
-├── Outputs/                     # All output videos, plots, and CSVs
-├── vibration_analysis.py       # Main pipeline script
-├── utils/                      # (optional) Utility functions if modularized
+├── Outputs/                    # All output videos, plots, and CSVs
+├── model.py                    # Main model script
+├── Data/                       # Data Folder
+├── test.py                     # Main Processing Code script
 └── README.md                   # This documentation
 ```
 
@@ -119,12 +120,21 @@ perform_fft_analysis(magnitudes, fps)
 ```
 
 Extracts the **dominant frequencies** in the signal using FFT and calculates:
-
-- Total Energy
-- Max Amplitude & Frequency
-- Spectral Centroid
-- Spectral Bandwidth
-- Spectral Entropy
+  
+  - "Total Energy"
+  - "Max Amplitude"
+  - "Frequency of Max Amplitude"
+  - "Spectral Centroid"
+  - "Spectral Bandwidth"
+  - "Spectral Entropy"
+  - "Mean"
+  - "Std Dev"
+  - "Variance"
+  - "Skewness"
+  - "Kurtosis"
+  - "Entropy"
+  - "Peak-to-Peak"
+  - "Zero Crossing Rate"
 
 ---
 
@@ -187,16 +197,6 @@ process_vibration_video(video_path, track_vertical=False)
 ```
 
 Combines all steps in order, and allows toggling between **vertical motion tracking** and **flow magnitude** mode.
-
----
-
-## 🎯 Use Cases
-
-- Machine fault detection
-- Structural health monitoring
-- Biomedical tremor analysis
-- MEMS vibration validation
-- Remote sensorless vibration diagnostics
 
 ---
 
