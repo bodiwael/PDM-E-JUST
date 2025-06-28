@@ -75,7 +75,7 @@ def save_optical_flow_video(frames, output_path, fps):
     out.release()
     print(f"Optical flow vector field video saved to {output_path}")
 
-# Eulerian magnification
+# Eulerian magnification - now operates on ROI frames
 def eulerian_magnification(frames, alpha=30, filter_size=5, lambda_=5, use_color=False):
     enhanced_frames = []
     for frame in frames:
@@ -114,6 +114,25 @@ def extract_optical_flow_magnitude(frames):
         magnitudes.append(magnitude)
         prev = next_f
     return np.array(magnitudes)
+
+# Function to crop frames to ROI
+def crop_frames_to_roi(frames, roi, scale):
+    x, y, w, h = roi
+    x_start = int(x / scale)
+    y_start = int(y / scale)
+    x_end = int((x + w) / scale)
+    y_end = int((y + h) / scale)
+    
+    cropped_frames = []
+    for frame in frames:
+        # Handle both grayscale and color frames
+        if len(frame.shape) == 2:  # Grayscale
+            cropped = frame[y_start:y_end, x_start:x_end]
+        else:  # Color
+            cropped = frame[y_start:y_end, x_start:x_end, :]
+        cropped_frames.append(cropped)
+    
+    return cropped_frames
 
 # Signal smoothing
 def smooth_signal_with_transformer(magnitudes, smoothing_factor=0.1):
@@ -220,19 +239,36 @@ def plot_results(magnitudes, smoothed_magnitudes, xf, amplitude, f, t, Sxx, clip
     print(f"Saved plot for {clip_name} to {plot_path}")
 
 # ROI selection
-def get_roi_from_video(video_path):
+def get_roi_from_video(video_path, target_width=640, target_height=360):
     cap = cv2.VideoCapture(video_path)
     ret, frame = cap.read()
     if not ret:
         print("Error: Unable to read video.")
-        return None
-    height, width = frame.shape[:2]
-    scale = 600 / height
-    frame_resized = cv2.resize(frame, (int(width * scale), 600))
-    roi = cv2.selectROI("Select ROI", frame_resized, fromCenter=False, showCrosshair=True)
+        return None, None
+    
+    # Resize frame to match processing resolution
+    frame_resized = cv2.resize(frame, (target_width, target_height))
+    
+    # Further scale for display if needed
+    height, width = frame_resized.shape[:2]
+    display_scale = 1.0
+    if height > 600:
+        display_scale = 600 / height
+        display_frame = cv2.resize(frame_resized, (int(width * display_scale), 600))
+    else:
+        display_frame = frame_resized
+    
+    roi = cv2.selectROI("Select ROI", display_frame, fromCenter=False, showCrosshair=True)
     cv2.destroyAllWindows()
     cap.release()
-    return roi, scale
+    
+    # Adjust ROI coordinates back to processing resolution
+    if display_scale != 1.0:
+        x, y, w, h = roi
+        roi = (int(x / display_scale), int(y / display_scale), 
+               int(w / display_scale), int(h / display_scale))
+    
+    return roi, 1.0  # Return scale as 1.0 since we're working with processing resolution
 
 # Pipeline
 def generate_clip_indices(fps, total_frames, clip_duration=20, stride=5):
@@ -250,6 +286,8 @@ def process_vibration_video(video_path, track_vertical=False):
     if roi is None:
         return
 
+    print(f"Selected ROI: {roi}")
+
     print("[2] Reading video and amplifying...")
     frames, fps = amplify_motion(video_path)
     if frames is None:
@@ -266,29 +304,36 @@ def process_vibration_video(video_path, track_vertical=False):
             print(f"Skipping clip {idx+1} due to insufficient frames.")
             continue
 
-        print("[3] Applying Eulerian magnification...")
+        print("[3] Cropping frames to ROI...")
+        # Crop frames to ROI BEFORE applying Eulerian magnification
+        cropped_frames = crop_frames_to_roi(clip_frames, roi, scale)
+        
+        print(f"ROI dimensions: {cropped_frames[0].shape}")
+
+        print("[4] Applying Eulerian magnification to ROI...")
         if track_vertical:
-            color_clip = [cv2.cvtColor(f, cv2.COLOR_GRAY2BGR) for f in clip_frames]
-            enhanced = eulerian_magnification(color_clip, use_color=True)
+            # Convert grayscale ROI frames to color for vertical tracking
+            color_cropped = [cv2.cvtColor(f, cv2.COLOR_GRAY2BGR) for f in cropped_frames]
+            enhanced_roi = eulerian_magnification(color_cropped, use_color=True)
+            # Convert back to grayscale for saving
+            enhanced_roi_gray = [cv2.cvtColor(f, cv2.COLOR_BGR2GRAY) for f in enhanced_roi]
         else:
-            enhanced = eulerian_magnification(clip_frames)
+            enhanced_roi = eulerian_magnification(cropped_frames)
+            enhanced_roi_gray = enhanced_roi
 
-        clip_video_name = f"eulerian_output_clip_{idx+1}.mp4"
-        save_video([cv2.cvtColor(f, cv2.COLOR_BGR2GRAY) if track_vertical else f for f in enhanced], clip_video_name, fps)
+        clip_video_name = f"eulerian_output_roi_clip_{idx+1}.mp4"
+        save_video(enhanced_roi_gray, clip_video_name, fps)
 
-        print("[4] Cropping frames to ROI...")
-        x, y, w, h = roi
-        cropped = [f[int(y*scale):int((y+h)*scale), int(x*scale):int((x+w)*scale)] for f in enhanced]
-
-        print("[5] Calculating optical flow...")
+        print("[5] Calculating optical flow on ROI...")
         if track_vertical:
-            magnitudes = extract_vertical_displacement(cropped)
+            magnitudes = extract_vertical_displacement(enhanced_roi)
         else:
-            magnitudes = extract_optical_flow_magnitude(cropped)
+            magnitudes = extract_optical_flow_magnitude(enhanced_roi_gray)
 
-        magnitudes = magnitudes - np.mean(magnitudes)  # 🚫 DC component
-        optical_flow_video_name = f"optical_flow_vectors_clip_{idx+1}.mp4"
-        save_optical_flow_video([cv2.cvtColor(f, cv2.COLOR_BGR2GRAY) if track_vertical else f for f in cropped], optical_flow_video_name, fps)
+        magnitudes = magnitudes - np.mean(magnitudes)  # Remove DC component
+        
+        optical_flow_video_name = f"optical_flow_vectors_roi_clip_{idx+1}.mp4"
+        save_optical_flow_video(enhanced_roi_gray, optical_flow_video_name, fps)
 
         print("[6] Smoothing signal...")
         smoothed = smooth_signal_with_transformer(magnitudes)
@@ -302,10 +347,10 @@ def process_vibration_video(video_path, track_vertical=False):
         time_features = compute_time_features(magnitudes)
 
         print("[9] Saving CSV and plotting...")
-        csv_name = f"vibration_data_clip_{idx+1}.csv"
+        csv_name = f"vibration_data_roi_clip_{idx+1}.csv"
         save_vibration_data_to_csv(magnitudes, smoothed, {**freq_features, **time_features}, output_file=csv_name)
 
-        clip_name = f"Plot {idx+1}"
+        clip_name = f"ROI_Plot_{idx+1}"
         plot_results(magnitudes, smoothed, xf, amp, f, t, Sxx, clip_name, {**freq_features, **time_features})
 
 # Usage
