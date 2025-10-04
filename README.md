@@ -29,7 +29,7 @@ Both approaches achieve **~99% accuracy** in classifying:
 
 ## Features
 
-### Video Processing (`test.py`)
+### Video Processing (`Approach 1 - Frequency Parameters Training/PreProcessing.py.py`)
 - **Eulerian Motion Magnification**: Amplifies subtle vibrations invisible to the naked eye
 - **Optical Flow Analysis**: Extracts displacement time series from video
 - **ROI Selection**: Focus analysis on specific machine components
@@ -50,7 +50,7 @@ Both approaches achieve **~99% accuracy** in classifying:
 
 ### Classification Models
 
-#### Frequency-Based Approach (`model.py`)
+#### Frequency-Based Approach (`Approach 1 - Frequency Parameters Training/model.py`)
 - **Random Forest Classifier** with optimized hyperparameters
 - Input: 14 frequency and time-domain features
 - Achieves 99% accuracy on test set
@@ -62,7 +62,7 @@ Multiple state-of-the-art architectures tested:
 - **Swin Transformer**
 - **ConvNeXt**
 
-All models achieve **~99% accuracy** 🎉
+All models achieve average **~99% accuracy** 🎉
 
 ## 📁 Project Structure
 
