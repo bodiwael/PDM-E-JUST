@@ -67,19 +67,13 @@ All models achieve average **~99% accuracy** 🎉
 ## 📁 Project Structure
 
 ```
-├── test.py                    # Video processing & feature extraction
-├── model.py                   # Random Forest training on frequency features
-├── PDM_Notebook.ipynb        # Deep learning models (ViT, Swin, ConvNeXt)
-├── Outputs/                   # Generated videos, plots, and CSVs
-│   ├── eulerian_output_roi_clip_*.mp4
-│   ├── optical_flow_vectors_roi_clip_*.mp4
-│   ├── vibration_data_roi_clip_*.csv
-│   └── ROI_Plot_*.png
-├── Second Batch/              # Training data organized by class
-│   ├── Normal/
-│   ├── Outer Ring/
-│   ├── 10g/
-│   └── 37g/
+├── 
+├── Approach 1 - Frequency Parameters Training/                   # Generated videos, plots, and CSVs
+│   ├── Preprocessing.py                    # Video processing & feature extraction
+│   ├── model.py                   # Random Forest training on frequency features
+├── Approach 2 - ROI Image Training/              # Training data organized by class
+│   ├── EulerMag_Optical_Flow_Freq_Analysis.ipynb
+│   ├── pdm-transformer-project.ipynb
 └── README.md
 ```
 
@@ -113,7 +107,7 @@ pip install timm
 VIDEO_PATH = "path/to/your/video.MOV"
 
 # Run feature extraction
-python test.py
+python Preprocessing.py
 ```
 
 This will:
@@ -165,7 +159,8 @@ All models show strong diagonal patterns with minimal misclassification across a
 
 All processed results are available on Google Drive:
 
-**🔗 [Download Complete Dataset & Results](YOUR_GOOGLE_DRIVE_LINK_HERE)**
+**🔗 [Download Complete Approach 1 - Results]((https://drive.google.com/file/d/1EVzg_uigl8PW_WhsY_WVXukThkvSnCd8/view?usp=sharing))**
+**🔗 [Download Complete Approach 2 - Results]((https://drive.google.com/drive/folders/1QmBHUpVfNfE-_thFkHcxBzosBTbzR9Ej?usp=drive_link))**
 
 Contents:
 - Enhanced video outputs (Eulerian magnification)
@@ -211,7 +206,7 @@ test_size = 0.2
 6. **Feature Engineering** → 14 statistical & spectral features
 7. **Classification** → RF/ViT/Swin/ConvNeXt
 
-## 📋 Requirements
+## Requirements
 
 **Hardware Recommendations:**
 - GPU with 8GB+ VRAM (for deep learning models)
