@@ -159,8 +159,8 @@ All models show strong diagonal patterns with minimal misclassification across a
 
 All processed results are available on Google Drive:
 
-**🔗 [Download Complete Approach 1 - Results]((https://drive.google.com/file/d/1EVzg_uigl8PW_WhsY_WVXukThkvSnCd8/view?usp=sharing))**
-**🔗 [Download Complete Approach 2 - Results]((https://drive.google.com/drive/folders/1QmBHUpVfNfE-_thFkHcxBzosBTbzR9Ej?usp=drive_link))**
+**🔗 [Download Complete Approach 1 - Results](https://drive.google.com/file/d/1EVzg_uigl8PW_WhsY_WVXukThkvSnCd8/view?usp=sharing)**
+**🔗 [Download Complete Approach 2 - Results](https://drive.google.com/drive/folders/1QmBHUpVfNfE-_thFkHcxBzosBTbzR9Ej?usp=drive_link)**
 
 Contents:
 - Enhanced video outputs (Eulerian magnification)
